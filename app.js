@@ -18,7 +18,7 @@ app.use(express.static("public"));
 const database = "todolistDB";
 
 //DB url
-const url = "mongodb://localhost:27017/";
+const url = "mongodb://0.0.0.0:27017/";
 
 //DB connection and the database creation.
 mongoose.set('strictQuery', false);
@@ -52,17 +52,7 @@ const defaultItems = [item1, item2, item3];
 
 
 //INSERTION OF MULTIPLES DOCUMENTS
-Item.insertMany(defaultItems, function (err) {
-  if (err) {
-    console.log(err);
-  } else {
-    console.log("Items successfully insert");
-  }
-  mongoose.connection.close();
-})
 
-const items = [];
-const workItems = [];
 
 
 
@@ -70,8 +60,26 @@ const workItems = [];
 app.get("/", function (req, res) {
 
   // const day = date.getDate();
+  Item.find({}, function (err, foundItems) {
 
-  res.render("list", { listTitle: "Today", newListItems: items });
+    if (foundItems.length === 0) {
+      Item.insertMany(defaultItems, function (err) {
+        if (err) {
+          console.log(err);
+        } else {
+          console.log("Items successfully insert");
+        }
+        mongoose.connection.close();
+      });
+      res.redirect("/");
+    } else {
+      res.render("list", { listTitle: "Today", newListItems: foundItems });
+
+    }
+
+
+  });
+
 
 });
 
@@ -87,6 +95,7 @@ app.post("/", function (req, res) {
     res.redirect("/");
   }
 });
+
 
 app.get("/work", function (req, res) {
   res.render("list", { listTitle: "Work List", newListItems: workItems });
