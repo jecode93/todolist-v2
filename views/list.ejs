@@ -10,12 +10,17 @@
     <!-- <% for (let i=0; i < newListItems.length ; i++) { %> -->
 
     <%newListItems.forEach(function (element){%>
-      <div class="item">
-        <input type="checkbox">
-        <p>
-          <%= element.name %>
-        </p>
-      </div>
+
+      <form action="/delete" method="post">
+
+        <div class="item">
+          <input name="checkbox" value="<%=element._id%>" type="checkbox" onChange="this.form.submit()">
+          <p>
+            <%= element.name %>
+          </p>
+        </div>
+      </form>
+
 
       <%});%>
 
