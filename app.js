@@ -52,7 +52,7 @@ const defaultItems = [item1, item2, item3];
 
 const listSchema = {
   name: String,
-  item: [itemsSchema]
+  items: [itemsSchema]
 };
 
 const List = mongoose.model("List", listSchema);
@@ -94,16 +94,15 @@ app.get("/:customListName", function (req, res) {
         //Create a new list
         const list = List({
           name: customListName,
-          item: defaultItems
+          items: defaultItems
         });
 
         list.save();
         res.redirect("/" + customListName);
       } else {
         //Show an existing list
-        res.render("list", { listTitle: result.name, newListItems: result.item });
+        res.render("list", { listTitle: result.name, newListItems: result.items });
       }
-
     } else {
 
     }
@@ -120,12 +119,23 @@ app.get("/:customListName", function (req, res) {
 app.post("/", function (req, res) {
 
   const itemName = req.body.newItem;
+  const listName = req.body.list;
 
   const item = new Item({
     name: itemName
   });
-  item.save();
-  res.redirect("/");
+
+
+  if (listName === "Today") {
+    item.save();
+    res.redirect("/");
+  } else {
+    List.findOne({ name: listName }, function (err, foundList) {
+      foundList.items.push(item);
+      foundList.save();
+      res.redirect("/" + listName);
+    });
+  }
 });
 
 app.post("/delete", function (req, res) {
