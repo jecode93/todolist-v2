@@ -50,6 +50,13 @@ const item3 = Item({
 //ARRAY OF THE ITEMS
 const defaultItems = [item1, item2, item3];
 
+const listSchema = {
+  name: String,
+  item: [itemsSchema]
+};
+
+const List = mongoose.model("List", listSchema);
+
 
 //INSERTION OF MULTIPLES DOCUMENTS
 
@@ -76,6 +83,39 @@ app.get("/", function (req, res) {
     }
   });
 });
+
+app.get("/:customListName", function (req, res) {
+  const customListName = req.params.customListName;
+
+
+  List.findOne({ name: customListName }, function (err, result) {
+    if (!err) {
+      if (!result) {
+        //Create a new list
+        const list = List({
+          name: customListName,
+          item: defaultItems
+        });
+
+        list.save();
+        res.redirect("/" + customListName);
+      } else {
+        //Show an existing list
+        res.render("list", { listTitle: result.name, newListItems: result.item });
+      }
+
+    } else {
+
+    }
+  })
+
+
+
+
+
+
+
+})
 
 app.post("/", function (req, res) {
 
